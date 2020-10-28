@@ -45,7 +45,13 @@ public class Tokenizer {
         while(!it.isEOF()&&Character.isDigit(it.peekChar())){
             tempUInt+=it.nextChar();
         }
-        return new Token(TokenType.Uint, Integer.parseInt(tempUInt), startPos, it.currentPos());
+        try{
+            int temp = Integer.parseInt(tempUInt);
+            return new Token(TokenType.Uint, temp, startPos, it.currentPos());
+        }catch (Exception e){
+            throw new TokenizeError(ErrorCode.IntegerOverflow,startPos);
+        }
+
         // 请填空：
         // 直到查看下一个字符不是数字为止:
         // -- 前进一个字符，并存储这个字符
