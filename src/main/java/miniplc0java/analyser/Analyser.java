@@ -203,7 +203,9 @@ public final class Analyser {
     }
 
     private void analyseMain() throws CompileError {
-        throw new Error("Not implemented");
+        analyseConstantDeclaration();
+        analyseVariableDeclaration();
+        analyseStatementSequence();
     }
 
     private void analyseConstantDeclaration() throws CompileError {
@@ -221,19 +223,50 @@ public final class Analyser {
 
             // 分号
             expect(TokenType.Semicolon);
+            addSymbol(nameToken.getValueString(),true,true,nameToken.getStartPos() );
         }
     }
 
     private void analyseVariableDeclaration() throws CompileError {
-        throw new Error("Not implemented");
+        while (nextIf(TokenType.Var) != null) {
+            // 变量名
+            var nameToken = expect(TokenType.Ident);
+
+            if(nextIf(TokenType.Equal)!=null){
+                // 等于号
+                expect(TokenType.Equal);
+
+                // 表达式
+                analyseExpression();
+
+                // 分号
+                expect(TokenType.Semicolon);
+                addSymbol(nameToken.getValueString(),true,false,nameToken.getStartPos() );
+            }else{
+                // 分号
+                expect(TokenType.Semicolon);
+                addSymbol(nameToken.getValueString(),false,false,nameToken.getStartPos() );
+            }
+
+        }
     }
 
     private void analyseStatementSequence() throws CompileError {
-        throw new Error("Not implemented");
+        while(check(TokenType.Ident)||check(TokenType.Print)||check(TokenType.Semicolon)){
+            analyseStatement();
+        }
     }
 
     private void analyseStatement() throws CompileError {
-        throw new Error("Not implemented");
+        if(check(TokenType.Ident)){
+            analyseAssignmentStatement();
+        }else if(check(TokenType.Print)){
+            analyseOutputStatement();
+        }else if(check(TokenType.Semicolon)){
+            next();
+        }else{
+            throw new AnalyzeError(ErrorCode.InvalidInput,peek().getStartPos());
+        }
     }
 
     private void analyseConstantExpression() throws CompileError {
